@@ -42,7 +42,7 @@
     }
     function Template(config) {
         return inherit(Template.prototype, config, {
-            createProperty: function() {
+            createProperty: function(binary) {
                 var property = (config.createProperty || Template.prototype.createProperty).apply(this, arguments);
                 return property.getBaseType && (property.baseType = property.binary.getType(property.getBaseType(property.binary.contexts[0]))), 
                 property;
@@ -352,7 +352,7 @@
     }), defaultTypeSet["if"] = Template({
         params: [ "condition", "trueType", "falseType" ],
         typeParams: [ "trueType", "falseType" ],
-        getBaseType: function() {
+        getBaseType: function(context) {
             return this.toValue(this.condition) ? this.trueType : this.falseType;
         }
     }), defaultTypeSet.if_not = defaultTypeSet.ifNot = Template({
@@ -440,13 +440,14 @@
             view.skip(zeroLength - 1));
         }
     });
-    var ReadableStream = !0 && require("stream").Readable;
+    var ReadableStream = require("stream").Readable;
     jBinary.loadData = promising(function(source, callback) {
         var dataParts;
         if (is(source, ReadableStream)) {
             var buffers = [];
             source.on("readable", function() {
-                buffers.push(this.read());
+                var buf = this.read();
+                buf && buffers.push(buf);
             }).on("end", function() {
                 callback(null, Buffer.concat(buffers));
             }).on("error", callback);
@@ -486,7 +487,7 @@
     }, proto.toURI = function(mimeType) {
         return this._toURI(this._mimeType(mimeType));
     };
-    var WritableStream = !0 && require("stream").Writable;
+    var WritableStream = require("stream").Writable;
     return proto.saveAs = promising(function(dest, mimeType, callback) {
         if ("string" == typeof dest) {
             var buffer = this.read("blob", 0);
