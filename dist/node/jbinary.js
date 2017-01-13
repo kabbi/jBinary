@@ -7,7 +7,7 @@
         return Ctor && obj instanceof Ctor;
     }
     function extend(obj) {
-        for (var i = 1, length = arguments.length; length > i; ++i) {
+        for (var i = 1, length = arguments.length; i < length; ++i) {
             var source = arguments[i];
             for (var prop in source) void 0 !== source[prop] && (obj[prop] = source[prop]);
         }
@@ -52,7 +52,7 @@
     "atob" in global && "btoa" in global || !function() {
         function b(l) {
             var g, j, e, k, h, f;
-            for (e = l.length, j = 0, g = ""; e > j; ) {
+            for (e = l.length, j = 0, g = ""; j < e; ) {
                 if (k = 255 & l.charCodeAt(j++), j == e) {
                     g += a.charAt(k >> 2), g += a.charAt((3 & k) << 4), g += "==";
                     break;
@@ -69,23 +69,23 @@
         }
         function c(m) {
             var l, k, h, f, j, e, g;
-            for (e = m.length, j = 0, g = ""; e > j; ) {
-                do l = d[255 & m.charCodeAt(j++)]; while (e > j && -1 == l);
-                if (-1 == l) break;
-                do k = d[255 & m.charCodeAt(j++)]; while (e > j && -1 == k);
-                if (-1 == k) break;
+            for (e = m.length, j = 0, g = ""; j < e; ) {
+                do l = d[255 & m.charCodeAt(j++)]; while (j < e && l == -1);
+                if (l == -1) break;
+                do k = d[255 & m.charCodeAt(j++)]; while (j < e && k == -1);
+                if (k == -1) break;
                 g += String.fromCharCode(l << 2 | (48 & k) >> 4);
                 do {
                     if (h = 255 & m.charCodeAt(j++), 61 == h) return g;
                     h = d[h];
-                } while (e > j && -1 == h);
-                if (-1 == h) break;
+                } while (j < e && h == -1);
+                if (h == -1) break;
                 g += String.fromCharCode((15 & k) << 4 | (60 & h) >> 2);
                 do {
                     if (f = 255 & m.charCodeAt(j++), 61 == f) return g;
                     f = d[f];
-                } while (e > j && -1 == f);
-                if (-1 == f) break;
+                } while (j < e && f == -1);
+                if (f == -1) break;
                 g += String.fromCharCode((3 & h) << 6 | f);
             }
             return g;
@@ -121,7 +121,7 @@
             });
 
           case "function":
-            for (var i = 0, length = this.contexts.length; length > i; i++) {
+            for (var i = 0, length = this.contexts.length; i < length; i++) {
                 var context = this.contexts[i];
                 if (filter.call(this, context)) return context;
             }
@@ -138,11 +138,11 @@
             }
             var type, _type = this;
             return withProp("params", function(params) {
-                for (var i = 0, length = params.length; length > i; i++) this[params[i]] = args[i];
+                for (var i = 0, length = params.length; i < length; i++) this[params[i]] = args[i];
             }), withProp("setParams", function(setParams) {
                 setParams.apply(this, args);
             }), withProp("typeParams", function(typeParams) {
-                for (var i = 0, length = typeParams.length; length > i; i++) {
+                for (var i = 0, length = typeParams.length; i < length; i++) {
                     var param = typeParams[i], descriptor = this[param];
                     descriptor && (this[param] = getType(descriptor));
                 }
@@ -240,7 +240,7 @@
     }, proto.writeAll = function(data) {
         return this.write("jBinary.all", data, 0);
     }, function(simpleType, dataTypes) {
-        for (var i = 0, length = dataTypes.length; length > i; i++) {
+        for (var i = 0, length = dataTypes.length; i < length; i++) {
             var dataType = dataTypes[i];
             defaultTypeSet[dataType.toLowerCase()] = inherit(simpleType, {
                 dataType: dataType
@@ -256,9 +256,9 @@
         }
     }), [ "Uint8", "Uint16", "Uint32", "Uint64", "Int8", "Int16", "Int32", "Int64", "Float32", "Float64", "Char" ]), 
     extend(defaultTypeSet, {
-        "byte": defaultTypeSet.uint8,
-        "float": defaultTypeSet.float32,
-        "double": defaultTypeSet.float64
+        byte: defaultTypeSet.uint8,
+        float: defaultTypeSet.float32,
+        double: defaultTypeSet.float64
     }), defaultTypeSet.array = Template({
         params: [ "baseType", "length" ],
         read: function() {
@@ -267,7 +267,7 @@
             var results;
             if (void 0 !== length) {
                 results = new Array(length);
-                for (var i = 0; length > i; i++) results[i] = this.baseRead();
+                for (var i = 0; i < length; i++) results[i] = this.baseRead();
             } else {
                 var end = this.view.byteLength;
                 for (results = []; this.binary.tell() < end; ) results.push(this.baseRead());
@@ -276,7 +276,7 @@
         },
         write: function(values) {
             if (this.baseType === defaultTypeSet.uint8) return this.view.writeBytes(values);
-            for (var i = 0, length = values.length; length > i; i++) this.baseWrite(values[i]);
+            for (var i = 0, length = values.length; i < length; i++) this.baseWrite(values[i]);
         }
     }), defaultTypeSet.binary = Template({
         params: [ "length", "typeSet" ],
@@ -303,7 +303,7 @@
         write: function(bytes) {
             this.view.writeBytes(bytes, !0);
         }
-    }), defaultTypeSet["const"] = Template({
+    }), defaultTypeSet.const = Template({
         params: [ "baseType", "value", "strict" ],
         read: function() {
             var value = this.baseRead();
@@ -316,7 +316,7 @@
         write: function(value) {
             this.baseWrite(this.strict || void 0 === value ? this.value : value);
         }
-    }), defaultTypeSet["enum"] = Template({
+    }), defaultTypeSet.enum = Template({
         params: [ "baseType", "matches" ],
         setParams: function(baseType, matches) {
             this.backMatches = {};
@@ -334,22 +334,22 @@
             this.parts = arguments;
         },
         resolve: function(getType) {
-            for (var parts = this.parts, length = parts.length, partTypes = new Array(length), i = 0; length > i; i++) partTypes[i] = getType(parts[i]);
+            for (var parts = this.parts, length = parts.length, partTypes = new Array(length), i = 0; i < length; i++) partTypes[i] = getType(parts[i]);
             this.parts = partTypes;
         },
         read: function() {
             var parts = this.parts, obj = this.binary.read(parts[0]);
             return this.binary.inContext(obj, function() {
-                for (var i = 1, length = parts.length; length > i; i++) extend(obj, this.read(parts[i]));
+                for (var i = 1, length = parts.length; i < length; i++) extend(obj, this.read(parts[i]));
             }), obj;
         },
         write: function(obj) {
             var parts = this.parts;
             this.binary.inContext(obj, function() {
-                for (var i = 0, length = parts.length; length > i; i++) this.write(parts[i], obj);
+                for (var i = 0, length = parts.length; i < length; i++) this.write(parts[i], obj);
             });
         }
-    }), defaultTypeSet["if"] = Template({
+    }), defaultTypeSet.if = Template({
         params: [ "condition", "trueType", "falseType" ],
         typeParams: [ "trueType", "falseType" ],
         getBaseType: function(context) {
@@ -428,14 +428,14 @@
             var view = this.view, maxLength = this.length;
             if (void 0 === maxLength) {
                 var code, startPos = view.tell(), length = 0;
-                for (maxLength = view.byteLength - startPos; maxLength > length && (code = view.getUint8()); ) length++;
+                for (maxLength = view.byteLength - startPos; length < maxLength && (code = view.getUint8()); ) length++;
                 var string = view.getString(length, startPos, this.encoding);
-                return maxLength > length && view.skip(1), string;
+                return length < maxLength && view.skip(1), string;
             }
-            return view.getString(maxLength, void 0, this.encoding).replace(/\0.*$/, "");
+            return view.getString(this.toValue(maxLength), void 0, this.encoding).replace(/\0.*$/, "");
         },
         write: function(value) {
-            var view = this.view, zeroLength = void 0 === this.length ? 1 : this.length - value.length;
+            var view = this.view, zeroLength = void 0 === this.length ? 1 : this.toValue(this.length) - value.length;
             view.writeString(value, void 0, this.encoding), zeroLength > 0 && (view.writeUint8(0), 
             view.skip(zeroLength - 1));
         }

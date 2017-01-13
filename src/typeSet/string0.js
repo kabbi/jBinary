@@ -14,11 +14,11 @@ defaultTypeSet.string0 = Type({
 			}
 			return string;
 		} else {
-			return view.getString(maxLength, undefined, this.encoding).replace(/\0.*$/, '');
+			return view.getString(this.toValue(maxLength), undefined, this.encoding).replace(/\0.*$/, '');
 		}
 	},
 	write: function (value) {
-		var view = this.view, zeroLength = this.length === undefined ? 1 : this.length - value.length;
+		var view = this.view, zeroLength = this.length === undefined ? 1 : this.toValue(this.length) - value.length;
 		view.writeString(value, undefined, this.encoding);
 		if (zeroLength > 0) {
 			view.writeUint8(0);
